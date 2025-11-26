@@ -5,9 +5,12 @@ A sleek, modern algorithmic trading platform built with Next.js, featuring a pow
 ## Features
 
 - **Strategy Editor**: Write trading strategies in JavaScript with Monaco Editor (VS Code editor)
-- **Advanced Backtesting**: Test strategies against historical data with detailed metrics
+- **Real Market Data**: Integration with Alpha Vantage API for historical stock prices
+- **Advanced Backtesting**: Test strategies against real historical data with detailed metrics
 - **Real-time Analytics**: Visualize performance with interactive charts
 - **Performance Metrics**: Track returns, Sharpe ratio, drawdown, win rate, and more
+- **Smart Caching**: 24-hour data cache to respect API rate limits
+- **Data Source Indicator**: Clear UI feedback showing real vs simulated data
 - **Modern UI**: Dark theme with beautiful gradients and smooth animations
 - **Fast & Scalable**: Built on Next.js and Neon serverless Postgres
 
@@ -17,6 +20,7 @@ A sleek, modern algorithmic trading platform built with Next.js, featuring a pow
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **Database**: Neon (Serverless Postgres)
+- **Market Data**: Alpha Vantage API
 - **Editor**: Monaco Editor
 - **Charts**: Recharts
 - **Deployment**: Vercel
@@ -26,7 +30,8 @@ A sleek, modern algorithmic trading platform built with Next.js, featuring a pow
 ### Prerequisites
 
 - Node.js 18+ installed
-- A Neon database account (free tier available)
+- Alpha Vantage API key (free tier available - [get yours here](https://www.alphavantage.co/support/#api-key))
+- A Neon database account (optional - free tier available)
 
 ### Installation
 
@@ -43,17 +48,26 @@ npm install
 
 3. Set up environment variables:
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
-Edit `.env` and add your Neon database URL:
-```
+Edit `.env.local` and add your API keys:
+```bash
+# Required: Alpha Vantage API key for real market data
+ALPHA_VANTAGE_API_KEY=your_api_key_here
+
+# Optional: Neon database (for saving strategies)
 DATABASE_URL=postgresql://user:password@your-neon-hostname.neon.tech/neondb?sslmode=require
 ```
 
-4. Initialize the database:
+**Get your free Alpha Vantage API key:**
+- Visit https://www.alphavantage.co/support/#api-key
+- Enter your email
+- Copy your API key and paste it in `.env.local`
 
-Connect to your Neon database and run the SQL schema from `src/lib/schema.sql`
+4. (Optional) Initialize the database:
+
+If you want to save strategies, connect to your Neon database and run the SQL schema from `src/lib/schema.sql`
 
 5. Run the development server:
 ```bash
@@ -69,11 +83,32 @@ Open [http://localhost:3000](http://localhost:3000) to see the application.
 2. Import your repository in Vercel
 
 3. Add environment variables in Vercel:
-   - `DATABASE_URL`: Your Neon database connection string
+   - `ALPHA_VANTAGE_API_KEY`: Your Alpha Vantage API key (required)
+   - `DATABASE_URL`: Your Neon database connection string (optional)
 
 4. Deploy!
 
 Vercel will automatically detect Next.js and configure the build settings.
+
+## Market Data
+
+The platform uses **Alpha Vantage** for real historical stock price data:
+
+**Free Tier Limits:**
+- 25 API calls per day
+- 5 API calls per minute
+
+**Smart Features:**
+- 24-hour data caching to minimize API calls
+- Automatic fallback to simulated data if API is unavailable
+- Clear UI indicator showing data source (real vs simulated)
+- Support for any US stock symbol (AAPL, MSFT, TSLA, etc.)
+
+**Supported Stocks:**
+The platform works with any valid US stock ticker symbol available on Alpha Vantage. Popular examples:
+- Tech: AAPL, MSFT, GOOGL, AMZN, META, NVDA
+- Finance: JPM, BAC, GS, V, MA
+- Consumer: WMT, HD, NKE, SBUX, MCD
 
 ## Project Structure
 
@@ -92,6 +127,7 @@ Vercel will automatically detect Next.js and configure the build settings.
 │   │   └── BacktestResults.tsx # Results visualization
 │   ├── lib/                   # Utilities and core logic
 │   │   ├── backtester.ts     # Backtesting engine
+│   │   ├── alpha-vantage.ts  # Market data integration
 │   │   ├── db.ts             # Database connection
 │   │   ├── schema.sql        # Database schema
 │   │   └── utils.ts          # Helper functions
