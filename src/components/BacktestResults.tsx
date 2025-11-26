@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { TrendingUp, TrendingDown, Activity, DollarSign } from 'lucide-react';
+import { TrendingUp, TrendingDown, Activity, DollarSign, Database, Sparkles } from 'lucide-react';
 
 interface BacktestResultsProps {
   results: {
@@ -17,6 +17,8 @@ interface BacktestResultsProps {
       winningTrades: number;
       losingTrades: number;
     };
+    dataSource?: string;
+    dataPoints?: number;
   } | null;
   initialCapital: number;
 }
@@ -33,13 +35,43 @@ export default function BacktestResults({ results, initialCapital }: BacktestRes
     );
   }
 
-  const { metrics, equityCurve, trades } = results;
+  const { metrics, equityCurve, trades, dataSource, dataPoints } = results;
   const winRate = metrics.totalTrades > 0
     ? ((metrics.winningTrades / metrics.totalTrades) * 100).toFixed(1)
     : '0.0';
 
   return (
     <div className="space-y-6">
+      {/* Data Source Indicator */}
+      {dataSource && (
+        <div className={`rounded-lg border p-4 ${
+          dataSource === 'real'
+            ? 'bg-green-500/10 border-green-500/20'
+            : 'bg-yellow-500/10 border-yellow-500/20'
+        }`}>
+          <div className="flex items-center gap-3">
+            {dataSource === 'real' ? (
+              <Database className="h-5 w-5 text-green-500" />
+            ) : (
+              <Sparkles className="h-5 w-5 text-yellow-500" />
+            )}
+            <div>
+              <p className={`font-semibold ${
+                dataSource === 'real' ? 'text-green-400' : 'text-yellow-400'
+              }`}>
+                {dataSource === 'real' ? 'Real Market Data' : 'Simulated Data'}
+              </p>
+              <p className="text-sm text-slate-400">
+                {dataSource === 'real'
+                  ? `Using ${dataPoints} days of historical data from Alpha Vantage`
+                  : 'Using randomly generated data - API unavailable or rate limited'
+                }
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Metrics Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-slate-900/50 border-slate-800">
