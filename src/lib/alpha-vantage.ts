@@ -62,6 +62,9 @@ export async function fetchHistoricalData(
 
     const data: AlphaVantageResponse = await response.json();
 
+    // Log the response for debugging
+    console.log('Alpha Vantage response keys:', Object.keys(data));
+
     // Check for API errors or rate limit
     if ('Error Message' in data) {
       throw new Error(`Alpha Vantage error: ${(data as any)['Error Message']}`);
@@ -71,8 +74,14 @@ export async function fetchHistoricalData(
       throw new Error('Alpha Vantage API rate limit reached. Please try again later.');
     }
 
+    if ('Information' in data) {
+      throw new Error(`Alpha Vantage info: ${(data as any)['Information']}`);
+    }
+
     if (!data['Time Series (Daily)']) {
-      throw new Error('Invalid response from Alpha Vantage API');
+      // Log what we actually received
+      console.error('Unexpected Alpha Vantage response:', JSON.stringify(data, null, 2));
+      throw new Error(`Invalid response from Alpha Vantage API. Received keys: ${Object.keys(data).join(', ')}`);
     }
 
     // Transform Alpha Vantage data to our MarketData format
