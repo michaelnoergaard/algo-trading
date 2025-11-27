@@ -49,7 +49,7 @@ export async function fetchHistoricalData(
     const url = new URL(ALPHA_VANTAGE_BASE_URL);
     url.searchParams.append('function', 'TIME_SERIES_DAILY');
     url.searchParams.append('symbol', symbol);
-    url.searchParams.append('outputsize', 'full'); // Get full historical data
+    url.searchParams.append('outputsize', 'compact'); // Free tier: last 100 data points
     url.searchParams.append('apikey', API_KEY);
 
     console.log(`Fetching data for ${symbol} from Alpha Vantage...`);

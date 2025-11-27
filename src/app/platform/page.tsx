@@ -14,8 +14,8 @@ export default function PlatformPage() {
   const [isRunning, setIsRunning] = useState(false);
   const [config, setConfig] = useState({
     symbol: 'AAPL',
-    startDate: '2023-01-01',
-    endDate: '2024-01-01',
+    startDate: '2024-08-01',
+    endDate: '2024-11-27',
     initialCapital: 100000,
   });
 
