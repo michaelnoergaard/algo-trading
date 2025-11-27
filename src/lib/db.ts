@@ -1,10 +1,15 @@
 import { neon } from '@neondatabase/serverless';
 
-export function getDb() {
+let cachedSql: ReturnType<typeof neon> | null = null;
+
+export function getSql() {
   if (!process.env.DATABASE_URL) {
     throw new Error('DATABASE_URL is not set');
   }
-  return neon(process.env.DATABASE_URL);
-}
 
-export const sql = getDb();
+  if (!cachedSql) {
+    cachedSql = neon(process.env.DATABASE_URL);
+  }
+
+  return cachedSql;
+}

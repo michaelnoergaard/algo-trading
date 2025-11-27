@@ -7,11 +7,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import StrategyEditor from '@/components/StrategyEditor';
 import BacktestResults from '@/components/BacktestResults';
 import ApiStatus from '@/components/ApiStatus';
+import SaveStrategyDialog from '@/components/SaveStrategyDialog';
+import LoadStrategyDialog from '@/components/LoadStrategyDialog';
+import { EXAMPLE_STRATEGIES, type StrategyKey } from '@/lib/strategies';
 import { TrendingUp, ArrowLeft, Calendar, DollarSign } from 'lucide-react';
 
 export default function PlatformPage() {
   const [backtestResults, setBacktestResults] = useState<any>(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [strategyCode, setStrategyCode] = useState<string | undefined>(undefined);
+  const [currentCode, setCurrentCode] = useState<string>('');
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [config, setConfig] = useState({
     symbol: 'AAPL',
     startDate: '2024-08-01',
@@ -19,7 +26,26 @@ export default function PlatformPage() {
     initialCapital: 100000,
   });
 
+  const loadExample = (key: StrategyKey) => {
+    setStrategyCode(EXAMPLE_STRATEGIES[key].code);
+    setBacktestResults(null); // Clear previous results
+  };
+
+  const handleLoadStrategy = (code: string) => {
+    setStrategyCode(code);
+    setBacktestResults(null);
+  };
+
+  const handleSave = () => {
+    if (!currentCode.trim()) {
+      alert('Please write some code before saving');
+      return;
+    }
+    setShowSaveDialog(true);
+  };
+
   const handleRunBacktest = async (code: string) => {
+    setCurrentCode(code); // Track the current code for saving
     setIsRunning(true);
     setBacktestResults(null);
 
@@ -63,10 +89,18 @@ export default function PlatformPage() {
               </div>
             </Link>
             <div className="flex items-center gap-4">
-              <Button variant="outline" className="border-slate-700">
+              <Button
+                variant="outline"
+                className="border-slate-700"
+                onClick={handleSave}
+              >
                 Save Strategy
               </Button>
-              <Button variant="outline" className="border-slate-700">
+              <Button
+                variant="outline"
+                className="border-slate-700"
+                onClick={() => setShowLoadDialog(true)}
+              >
                 Load Strategy
               </Button>
             </div>
@@ -152,9 +186,7 @@ export default function PlatformPage() {
                       variant="outline"
                       size="sm"
                       className="w-full border-slate-700 text-slate-300 hover:text-white"
-                      onClick={() => {
-                        // Load example strategy
-                      }}
+                      onClick={() => loadExample('maCrossover')}
                     >
                       MA Crossover
                     </Button>
@@ -162,21 +194,33 @@ export default function PlatformPage() {
                       variant="outline"
                       size="sm"
                       className="w-full border-slate-700 text-slate-300 hover:text-white"
-                      onClick={() => {
-                        // Load example strategy
-                      }}
+                      onClick={() => loadExample('meanReversion')}
                     >
-                      RSI Mean Reversion
+                      Mean Reversion
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       className="w-full border-slate-700 text-slate-300 hover:text-white"
-                      onClick={() => {
-                        // Load example strategy
-                      }}
+                      onClick={() => loadExample('breakoutStrategy')}
                     >
                       Breakout Strategy
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full border-slate-700 text-slate-300 hover:text-white"
+                      onClick={() => loadExample('momentumTrading')}
+                    >
+                      Momentum Trading
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full border-slate-700 text-slate-300 hover:text-white"
+                      onClick={() => loadExample('buyAndHold')}
+                    >
+                      Buy & Hold
                     </Button>
                   </div>
                 </div>
@@ -187,6 +231,7 @@ export default function PlatformPage() {
           {/* Right Column - Editor and Results */}
           <div className="lg:col-span-2 space-y-6">
             <StrategyEditor
+              value={strategyCode}
               onRunBacktest={handleRunBacktest}
               isRunning={isRunning}
             />
@@ -198,6 +243,22 @@ export default function PlatformPage() {
           </div>
         </div>
       </div>
+
+      {/* Dialogs */}
+      <SaveStrategyDialog
+        open={showSaveDialog}
+        onOpenChange={setShowSaveDialog}
+        strategyCode={currentCode}
+        onSaveSuccess={() => {
+          alert('Strategy saved successfully!');
+        }}
+      />
+
+      <LoadStrategyDialog
+        open={showLoadDialog}
+        onOpenChange={setShowLoadDialog}
+        onLoadStrategy={handleLoadStrategy}
+      />
     </div>
   );
 }

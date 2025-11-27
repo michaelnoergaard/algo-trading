@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -9,6 +9,7 @@ const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false 
 
 interface StrategyEditorProps {
   initialCode?: string;
+  value?: string; // Allow parent to control the code
   onRunBacktest: (code: string) => void;
   isRunning?: boolean;
 }
@@ -60,8 +61,15 @@ function calculatePrevSMA(prevData, period) {
   return sum / period;
 }`;
 
-export default function StrategyEditor({ initialCode, onRunBacktest, isRunning }: StrategyEditorProps) {
+export default function StrategyEditor({ initialCode, value, onRunBacktest, isRunning }: StrategyEditorProps) {
   const [code, setCode] = useState(initialCode || DEFAULT_STRATEGY);
+
+  // Update code when value prop changes (controlled component)
+  useEffect(() => {
+    if (value !== undefined) {
+      setCode(value);
+    }
+  }, [value]);
 
   return (
     <Card className="bg-slate-900/50 border-slate-800">

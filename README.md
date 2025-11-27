@@ -5,12 +5,15 @@ A sleek, modern algorithmic trading platform built with Next.js, featuring a pow
 ## Features
 
 - **Strategy Editor**: Write trading strategies in JavaScript with Monaco Editor (VS Code editor)
+- **Quick Examples**: 5 pre-built trading strategies (MA Crossover, Mean Reversion, Breakout, Momentum, Buy & Hold)
+- **Save/Load Strategies**: Persist your custom strategies to the database for later use
 - **Real Market Data**: Integration with Alpha Vantage API for historical stock prices
 - **Advanced Backtesting**: Test strategies against real historical data with detailed metrics
 - **Real-time Analytics**: Visualize performance with interactive charts
 - **Performance Metrics**: Track returns, Sharpe ratio, drawdown, win rate, and more
 - **Smart Caching**: 24-hour data cache to respect API rate limits
 - **Data Source Indicator**: Clear UI feedback showing real vs simulated data
+- **API Health Check**: Manual connectivity test to preserve API quota
 - **Modern UI**: Dark theme with beautiful gradients and smooth animations
 - **Fast & Scalable**: Built on Next.js and Neon serverless Postgres
 
@@ -65,16 +68,31 @@ DATABASE_URL=postgresql://user:password@your-neon-hostname.neon.tech/neondb?sslm
 - Enter your email
 - Copy your API key and paste it in `.env.local`
 
-4. (Optional) Initialize the database:
-
-If you want to save strategies, connect to your Neon database and run the SQL schema from `src/lib/schema.sql`
-
-5. Run the development server:
+4. Run the development server:
 ```bash
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to see the application.
+
+5. (Optional) Set up Neon database for saving strategies:
+
+**Get your free Neon database:**
+- Visit https://neon.tech and sign up for a free account
+- Create a new project
+- Copy the connection string from the project dashboard
+- Add it to `.env.local` as `DATABASE_URL`
+
+**Initialize the database tables:**
+
+Once your DATABASE_URL is configured, visit:
+```
+http://localhost:3000/api/db/init
+```
+
+This will automatically create all required tables (strategies, backtests, market_data, backtest_trades).
+
+Alternatively, you can manually run the SQL from `src/lib/schema.sql` in your Neon console.
 
 ## Deployment to Vercel
 
@@ -84,9 +102,21 @@ Open [http://localhost:3000](http://localhost:3000) to see the application.
 
 3. Add environment variables in Vercel:
    - `ALPHA_VANTAGE_API_KEY`: Your Alpha Vantage API key (required)
-   - `DATABASE_URL`: Your Neon database connection string (optional)
+   - `DATABASE_URL`: Your Neon database connection string (optional - needed for Save/Load features)
 
 4. Deploy!
+
+5. After deployment, initialize the database by visiting:
+```
+https://your-app.vercel.app/api/db/init
+```
+
+6. (Optional) Delete the `/api/db/init` endpoint after initialization for security:
+
+Once the database is set up, you can remove the initialization endpoint:
+```bash
+rm src/app/api/db/init/route.ts
+```
 
 Vercel will automatically detect Next.js and configure the build settings.
 
@@ -114,26 +144,33 @@ The platform works with any valid US stock ticker symbol available on Alpha Vant
 
 ```
 ├── src/
-│   ├── app/                    # Next.js app directory
-│   │   ├── api/               # API routes
-│   │   │   └── backtest/      # Backtest endpoint
-│   │   ├── platform/          # Trading platform page
-│   │   ├── layout.tsx         # Root layout
-│   │   ├── page.tsx           # Landing page
-│   │   └── globals.css        # Global styles
-│   ├── components/            # React components
-│   │   ├── ui/               # UI components (Button, Card, etc.)
-│   │   ├── StrategyEditor.tsx # Code editor component
-│   │   └── BacktestResults.tsx # Results visualization
-│   ├── lib/                   # Utilities and core logic
-│   │   ├── backtester.ts     # Backtesting engine
-│   │   ├── alpha-vantage.ts  # Market data integration
-│   │   ├── db.ts             # Database connection
-│   │   ├── schema.sql        # Database schema
-│   │   └── utils.ts          # Helper functions
-│   └── types/                 # TypeScript type definitions
+│   ├── app/                        # Next.js app directory
+│   │   ├── api/                   # API routes
+│   │   │   ├── backtest/          # Backtest endpoint
+│   │   │   ├── health/            # API health check
+│   │   │   ├── strategies/        # Strategy CRUD operations
+│   │   │   └── db/init/           # Database initialization
+│   │   ├── platform/              # Trading platform page
+│   │   ├── layout.tsx             # Root layout
+│   │   ├── page.tsx               # Landing page
+│   │   └── globals.css            # Global styles
+│   ├── components/                # React components
+│   │   ├── ui/                   # UI components (Button, Card, Dialog)
+│   │   ├── StrategyEditor.tsx     # Code editor component
+│   │   ├── BacktestResults.tsx    # Results visualization
+│   │   ├── ApiStatus.tsx          # API health indicator
+│   │   ├── SaveStrategyDialog.tsx # Save strategy modal
+│   │   └── LoadStrategyDialog.tsx # Load strategy modal
+│   ├── lib/                       # Utilities and core logic
+│   │   ├── backtester.ts         # Backtesting engine
+│   │   ├── alpha-vantage.ts      # Market data integration
+│   │   ├── strategies.ts         # Pre-built strategy examples
+│   │   ├── db.ts                 # Database connection
+│   │   ├── schema.sql            # Database schema
+│   │   └── utils.ts              # Helper functions
+│   └── types/                     # TypeScript type definitions
 │       └── index.ts
-├── public/                    # Static assets
+├── public/                        # Static assets
 ├── package.json
 ├── tsconfig.json
 ├── tailwind.config.ts
