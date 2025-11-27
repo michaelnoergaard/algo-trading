@@ -89,26 +89,22 @@ export async function fetchHistoricalData(
     const marketData: MarketData[] = [];
 
     let id = 1;
-    const start = new Date(startDate);
-    const end = new Date(endDate);
 
-    // Process each date in the time series
+    // Compact mode returns the most recent ~100 days
+    // We'll use all the data Alpha Vantage provides
+    console.log(`Processing ${Object.keys(timeSeriesData).length} days from Alpha Vantage...`);
+
     for (const [dateStr, values] of Object.entries(timeSeriesData)) {
-      const date = new Date(dateStr);
-
-      // Filter by date range
-      if (date >= start && date <= end) {
-        marketData.push({
-          id: id++,
-          symbol,
-          date: dateStr,
-          open: parseFloat(values['1. open']),
-          high: parseFloat(values['2. high']),
-          low: parseFloat(values['3. low']),
-          close: parseFloat(values['4. close']),
-          volume: parseInt(values['5. volume']),
-        });
-      }
+      marketData.push({
+        id: id++,
+        symbol,
+        date: dateStr,
+        open: parseFloat(values['1. open']),
+        high: parseFloat(values['2. high']),
+        low: parseFloat(values['3. low']),
+        close: parseFloat(values['4. close']),
+        volume: parseInt(values['5. volume']),
+      });
     }
 
     // Sort by date ascending
