@@ -43,7 +43,15 @@ export default function ApiStatus() {
   };
 
   useEffect(() => {
-    checkHealth();
+    // Don't auto-check on load to save API calls
+    // User can manually test with the refresh button
+    setLoading(false);
+    setHealth({
+      status: 'warning',
+      configured: true,
+      message: 'API status not tested',
+      details: 'Click the refresh button to test Alpha Vantage connectivity',
+    });
   }, []);
 
   if (loading) {
