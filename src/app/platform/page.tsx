@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import StrategyEditor from '@/components/StrategyEditor';
 import BacktestResults from '@/components/BacktestResults';
+import ApiStatus from '@/components/ApiStatus';
 import { TrendingUp, ArrowLeft, Calendar, DollarSign } from 'lucide-react';
 
 export default function PlatformPage() {
@@ -75,6 +76,11 @@ export default function PlatformPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
+        {/* API Status Indicator */}
+        <div className="mb-6">
+          <ApiStatus />
+        </div>
+
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Left Column - Configuration */}
           <div className="lg:col-span-1">
